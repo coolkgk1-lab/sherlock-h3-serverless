@@ -45,6 +45,8 @@ RUN mkdir -p /comfyui/models/SEEDVR2 && aria2c -x16 -s16 \
 # ------------------------------------------------------------------
 RUN git clone --depth 1 https://github.com/LeonQ8/ComfyUI-ALLinONE-MinimaxH3.git \
     /comfyui/custom_nodes/ComfyUI-ALLinONE-MinimaxH3
+RUN git clone --depth 1 https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo.git \
+    /comfyui/custom_nodes/ComfyUI-MiniMax-H3-Turbo
 RUN git clone --depth 1 https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git \
     /comfyui/custom_nodes/ComfyUI-SeedVR2_VideoUpscaler
 RUN git clone --depth 1 https://github.com/vrgamegirl19/comfyui-vrgamedevgirl.git \
