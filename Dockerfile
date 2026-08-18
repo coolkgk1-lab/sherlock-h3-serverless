@@ -23,26 +23,43 @@ COPY handler.py network_volume.py ./
 
 # ------------------------------------------------------------------
 # 3. Download all 5 MiniMax H3 model files (baked into image)
+#    aria2 multi-connection download = fastest build, models NEVER
+#    re-download on worker wake (storage strategy: bake-in).
 #    Source: https://huggingface.co/Comfy-Org/MiniMax-H3
 # ------------------------------------------------------------------
+RUN apt-get update && apt-get install -y aria2 && rm -rf /var/lib/apt/lists/*
+
+# Helper: 16 parallel connections per file
+RUN echo 'alias h3dl="aria2c -x 16 -s 16 --console-log-level=error"' >> /root/.bashrc
+
 # Diffusion model (ref2va - reference-to-video weights)
-RUN wget -q --show-progress -O /comfyui/models/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors \
+RUN aria2c -x 16 -s 16 --console-log-level=error \
+    -d /comfyui/models/diffusion_models \
+    -o minimax_h3_ref2va_pruned_int8_convrot.safetensors \
     "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors"
 
 # Text encoder (Qwen3VL 32B)
-RUN wget -q --show-progress -O /comfyui/models/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors \
+RUN aria2c -x 16 -s 16 --console-log-level=error \
+    -d /comfyui/models/text_encoders \
+    -o qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors \
     "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
 
 # Video VAE
-RUN wget -q --show-progress -O /comfyui/models/vae/minimax_h3_video_vae_fp16.safetensors \
+RUN aria2c -x 16 -s 16 --console-log-level=error \
+    -d /comfyui/models/vae \
+    -o minimax_h3_video_vae_fp16.safetensors \
     "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors"
 
 # Audio VAE
-RUN wget -q --show-progress -O /comfyui/models/vae/minimax_h3_audio_vae_fp32.safetensors \
+RUN aria2c -x 16 -s 16 --console-log-level=error \
+    -d /comfyui/models/vae \
+    -o minimax_h3_audio_vae_fp32.safetensors \
     "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors"
 
 # Turbo LoRA (4-step acceleration)
-RUN wget -q --show-progress -O /comfyui/models/loras/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors \
+RUN aria2c -x 16 -s 16 --console-log-level=error \
+    -d /comfyui/models/loras \
+    -o minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors \
     "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/loras/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors"
 
 # ------------------------------------------------------------------
