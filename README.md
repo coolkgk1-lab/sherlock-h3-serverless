@@ -18,7 +18,9 @@ RunPod Serverless endpoint running **ComfyUI 0.30.0** + **LeonQ8 ALL-in-One Mini
 5. Workers: Active `0`, Max `3`, Idle Timeout `5s`
 6. Deploy → get Endpoint ID
 
-## Call the endpoint
+## Call the endpoint — dynamic references
+
+The worker accepts **per-request reference images** (base64) — no need to bake them into the image. Any script can send its own refs.
 
 ```bash
 curl -X POST \
@@ -26,13 +28,23 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{
     "input": {
-      "workflow": <workflow-json-from-workflows/r2v_template.json with __PROMPT__ replaced>
+      "workflow": <workflow-json-from-workflows/r2v_template.json with __PROMPT__ replaced>,
+      "images": [
+        {"name": "holmes.png", "image": "data:image/png;base64,<BASE64_1>"},
+        {"name": "watson.png", "image": "data:image/png;base64,<BASE64_2>"}
+      ]
     }
   }' \
   https://api.runpod.ai/v2/<ENDPOINT_ID>/runsync
 ```
 
-The response contains the generated MP4 as base64.
+**How it works:**
+1. The `images` list is uploaded to ComfyUI's `/upload/image` before the workflow runs
+2. The workflow's `LoadImage` nodes (`"1"` and `"2"`) reference them by name
+3. `MiniMaxH3ReferenceToVideo` receives them via `ref_images`
+4. The response contains the generated MP4 as base64
+
+**For per-shot character refs** (different characters per clip): swap the `name` + base64 per request, and the workflow automatically picks up the new images.
 
 ## Files
 
