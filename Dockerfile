@@ -10,10 +10,16 @@ RUN cd /comfyui && git fetch origin && git pull origin master && \
     /opt/venv/bin/pip install -r requirements.txt
 
 # ------------------------------------------------------------------
-# 2. Install LeonQ8 ALL-in-One MiniMax H3 node
+# 2. Install LeonQ8 All-in-One MiniMax H3 node
 # ------------------------------------------------------------------
 RUN git clone https://github.com/LeonQ8/ComfyUI-ALLinONE-MinimaxH3.git \
     /comfyui/custom_nodes/ComfyUI-ALLinONE-MinimaxH3
+
+# ------------------------------------------------------------------
+# 2b. Serverless worker handler (required by RunPod GitHub integration)
+#     Ensures the repo contains the runpod.serverless.start() entrypoint.
+# ------------------------------------------------------------------
+COPY handler.py network_volume.py ./
 
 # ------------------------------------------------------------------
 # 3. Download all 5 MiniMax H3 model files (baked into image)
