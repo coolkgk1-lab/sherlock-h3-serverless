@@ -896,6 +896,5 @@ def handler(job):
     return final_result
 
 
-if __name__ == "__main__":
-    print("worker-comfyui - Starting handler...")
-    runpod.serverless.start({"handler": handler})
+# RunPod serverless entrypoint — MUST be at module level for GitHub-repo validation
+runpod.serverless.start({"handler": handler})
