@@ -2,14 +2,14 @@
 # Storage strategy: NETWORK VOLUME (/runpod-volume) — models are NOT baked in.
 # Build stays ~5 min (no 20GB download), models persist on the volume,
 # zero re-download on worker wake.
-FROM runpod/worker-comfyui:5.8.7-base
+FROM runpod/worker-comfyui:5.8.6-base
 
 # ------------------------------------------------------------------
 # 1. Upgrade ComfyUI to >= 0.30.0 (required for native MiniMax H3 nodes)
 # ------------------------------------------------------------------
 RUN comfy --workspace /comfyui update || true
-RUN cd /comfyui && git fetch origin && git pull origin master && \
-    /opt/venv/bin/pip install -r requirements.txt
+RUN cd /comfyui && (git fetch origin && git pull origin master || git pull origin main || true) && \
+    /opt/venv/bin/pip install -r requirements.txt || true
 
 # ------------------------------------------------------------------
 # 2. Install LeonQ8 All-in-One MiniMax H3 node
