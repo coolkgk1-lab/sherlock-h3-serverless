@@ -1,5 +1,8 @@
+# FULL BAKE-IN config: models are baked into the image at /comfyui/models.
+# Point base_path at /comfyui so ComfyUI scans the baked models.
+# (Do NOT point at /runpod-volume — that is empty when no volume is mounted on a baked-in worker.)
 runpod_worker_comfy:
-  base_path: /runpod-volume
+  base_path: /comfyui
   checkpoints: models/checkpoints/
   clip: models/clip/
   clip_vision: models/clip_vision/
