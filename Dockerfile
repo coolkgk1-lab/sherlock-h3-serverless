@@ -17,10 +17,11 @@ RUN cd /comfyui && git fetch origin && git pull origin master && \
 RUN git clone https://github.com/LeonQ8/ComfyUI-ALLinONE-MinimaxH3.git \
     /comfyui/custom_nodes/ComfyUI-ALLinONE-MinimaxH3
 
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # 2b. Serverless worker handler (required by RunPod GitHub integration)
-# ------------------------------------------------------------------
-COPY handler.py network_volume.py ./
+#     handler.py is a thin entrypoint; the logic lives in handler_impl.py
+# ---------------------------------------------------------------------------
+COPY handler.py handler_impl.py network_volume.py ./
 
 # ------------------------------------------------------------------
 # 3. Network volume model-path mapping.
