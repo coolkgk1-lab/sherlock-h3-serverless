@@ -19,21 +19,33 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends aria2 && rm 
 # ------------------------------------------------------------------
 # 3. Bake the MiniMax H3 models into the image (Comfy-Org/MiniMax-H3)
 #    All 5 official files + official Turbo LoRA.
-#    CRITICAL: aria2 saves FLAT by basename; we must mkdir + point --dir at each
-#    ComfyUI subfolder (diffusion_models/, text_encoders/, vae/, loras/) or
-#    ComfyUI won't find them.
+#    CRITICAL: (a) aria2 saves FLAT by basename; we mkdir + point --dir at each
+#    ComfyUI subfolder. (b) HF LFS serves blobs by content-hash, so we MUST pass
+#    -o <expected>.safetensors or ComfyUI won't find the file by its real name.
 # ------------------------------------------------------------------
 RUN mkdir -p /comfyui/models/diffusion_models /comfyui/models/text_encoders \
              /comfyui/models/vae /comfyui/models/loras
+
 RUN aria2c -x16 -s16 --dir=/comfyui/models/diffusion_models --continue=true \
-  "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors" \
+  -o minimax_h3_ref2va_pruned_int8_convrot.safetensors \
+  "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors"
+RUN aria2c -x16 -s16 --dir=/comfyui/models/diffusion_models --continue=true \
+  -o minimax_h3_fl2va_pruned_int8_convrot.safetensors \
   "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors"
+
 RUN aria2c -x16 -s16 --dir=/comfyui/models/text_encoders --continue=true \
+  -o qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors \
   "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+
 RUN aria2c -x16 -s16 --dir=/comfyui/models/vae --continue=true \
-  "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors" \
+  -o minimax_h3_video_vae_fp16.safetensors \
+  "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors"
+RUN aria2c -x16 -s16 --dir=/comfyui/models/vae --continue=true \
+  -o minimax_h3_audio_vae_fp32.safetensors \
   "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors"
+
 RUN aria2c -x16 -s16 --dir=/comfyui/models/loras --continue=true \
+  -o minimax_h3_turbo_v4_step600_ema.safetensors \
   "https://huggingface.co/larryvrh/MiniMax-H3-Turbo-Lora/resolve/main/minimax_h3_turbo_v4_step600_ema.safetensors" \
   && echo "MODELS_DOWNLOADED"
 
@@ -41,10 +53,13 @@ RUN aria2c -x16 -s16 --dir=/comfyui/models/loras --continue=true \
 # 4. Bake the SeedVR2 upscale models (DiT + VAE) into the image
 #    Source: numz/SeedVR2_comfyUI (the pack's own auto-download repo) - files at repo root
 # ------------------------------------------------------------------
-RUN mkdir -p /comfyui/models/SEEDVR2 && aria2c -x16 -s16 \
-  "https://huggingface.co/numz/SeedVR2_comfyUI/resolve/main/seedvr2_ema_3b_fp8_e4m3fn.safetensors" \
+RUN mkdir -p /comfyui/models/SEEDVR2
+RUN aria2c -x16 -s16 --dir=/comfyui/models/SEEDVR2 --continue=true \
+  -o seedvr2_ema_3b_fp8_e4m3fn.safetensors \
+  "https://huggingface.co/numz/SeedVR2_comfyUI/resolve/main/seedvr2_ema_3b_fp8_e4m3fn.safetensors"
+RUN aria2c -x16 -s16 --dir=/comfyui/models/SEEDVR2 --continue=true \
+  -o ema_vae_fp16.safetensors \
   "https://huggingface.co/Comfy-Org/SeedVR2/resolve/main/vae/ema_vae_fp16.safetensors" \
-  --dir=/comfyui/models/SEEDVR2 --continue=true \
   && echo "SEEDVR2_DOWNLOADED"
 
 # ------------------------------------------------------------------
